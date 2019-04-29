@@ -1,9 +1,10 @@
 package br.ce.wcaquino.servicos;
 
+import static br.ce.wcaquino.buiders.FilmeBuilder.umFilme;
+import static br.ce.wcaquino.buiders.UsuarioBuilder.umUsuario;
 import static br.ce.wcaquino.matchers.MatcherProprio.caiNumaSegunda;
 import static br.ce.wcaquino.matchers.MatcherProprio.ehHoje;
 import static br.ce.wcaquino.matchers.MatcherProprio.ehHojeComDiferencaDias;
-import static br.ce.wcaquino.utils.DataUtils.isMesmaData;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -25,10 +26,10 @@ import org.junit.rules.ExpectedException;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
-import br.ce.wcaquino.matchers.MatcherProprio;
 import br.ce.wcaquino.utils.DataUtils;
 import br.com.wcaquino.exception.FilmeSemEstoqueException;
 import br.com.wcaquino.exception.LocadoraException;
+import buildermaster.BuilderMaster;
 
 
 public class LocacaoServiceTest {
@@ -58,8 +59,8 @@ public class LocacaoServiceTest {
 		Assume.assumeTrue(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
 		
 		//given
-		Usuario usuario=new Usuario("User 1");
-		List<Filme> filmes=Arrays.asList(new Filme("Filme 1",2,5.0));
+		Usuario usuario=umUsuario().build();
+		List<Filme> filmes=Arrays.asList(umFilme().build());
 		
 		//when
 		Locacao retorno= locacaoService.alugarFilme(usuario, filmes);
@@ -81,8 +82,8 @@ public class LocacaoServiceTest {
 		// (Cenario): Matheus quer alugar um filme que não está no estoque
 		// Dado que o usuário Matheus quer alugar Pantera Negra
 
-		Usuario user1 = new Usuario("Matheus");
-		List<Filme> listaFilmes = Arrays.asList(new Filme("Pantera Negra", 0, 3.5));
+		Usuario user1 = umUsuario().build();
+		List<Filme> listaFilmes = Arrays.asList(umFilme().semEstoque().build());
 
 		// (Acao) When: Ocorre uma locação
 		locacaoService.alugarFilme(user1, listaFilmes);
@@ -97,7 +98,7 @@ public class LocacaoServiceTest {
 	public void naoDeveAlugaraFilmeSemUsuario() throws FilmeSemEstoqueException {
 		// (Cenario): Testando alugar com usuário vazio
 		LocacaoService locacaoService = new LocacaoService();
-		List<Filme> listaFilmes = Arrays.asList(new Filme("Pantera Negra", 1, 3.5));
+		List<Filme> listaFilmes = Arrays.asList(umFilme().build());
 
 		// (Acao) When: Ocorre uma locação
 		try {
@@ -117,7 +118,7 @@ public class LocacaoServiceTest {
 	@Test
 	public void deveLancarExcecaoAoAlugarFilmeSemFilme() throws FilmeSemEstoqueException, LocadoraException {
 		// (Cenario): Testando alugar com filme vazio
-		Usuario user1 = new Usuario("Matheus");
+		Usuario user1 = umUsuario().build();
 
 		// Indicacao da excecao dessa forma faz parte do cenario
 		expectedException.expect(LocadoraException.class);
@@ -136,8 +137,8 @@ public class LocacaoServiceTest {
 
 		// (Cenario): Matheus quer alugar um filme (pantera negra)
 		// Dado que o usuário Matheus quer alugar Pantera Negra
-		Usuario user1 = new Usuario("Matheus");
-		List<Filme> listaFilmes = Arrays.asList(new Filme("Pantera Negra", 1, 3.5));
+		Usuario user1 = umUsuario().build();
+		List<Filme> listaFilmes = Arrays.asList(umFilme().comValor(3.5).build());
 		// (Acao) When: Ocorre uma locação
 		Locacao locacao = locacaoService.alugarFilme(user1, listaFilmes);
 
@@ -147,43 +148,11 @@ public class LocacaoServiceTest {
 		error.checkThat(locacao.getDataLocacao(),ehHoje());
 		error.checkThat(locacao.getDataRetorno(), ehHojeComDiferencaDias(1));
 
+	}  
+	
+	public static void main(String[] args) {
+		new BuilderMaster().gerarCodigoClasse(Locacao.class);
 	}
 
-	/*
-	 * @Test public void testeLocacao1() { // Teste optado por funcionalidade
-	 * 
-	 * // (Cenario): Matheus quer alugar um filme (pantera negra) // Dado que o
-	 * usuário Matheus quer alugar Pantera Negra LocacaoService locacaoService = new
-	 * LocacaoService(); Usuario user1 = new Usuario("Matheus"); Filme filme1 = new
-	 * Filme("Pantera Negra", 1, 3.5);
-	 * 
-	 * // (Acao) When: Ocorre uma locação Locacao locacao =
-	 * locacaoService.alugarFilme(user1, filme1);
-	 * 
-	 * // (Verificacao) Then: o filme deve ser alugado (Através do objeto locação)
-	 * // AssertThat -> Verifique que (Método mais legivel)
-	 * assertThat(locacao.getValor(), is(3.5)); assertThat(locacao.getValor(),
-	 * is(equalTo(3.5))); assertThat(locacao.getValor(), is(not(5.0)));
-	 * assertThat(isMesmaData(locacao.getDataLocacao(), new Date()), is(true));
-	 * assertThat(isMesmaData(locacao.getDataRetorno(),
-	 * DataUtils.obterDataComDiferencaDias(1)), is(true)); }
-	 * 
-	 * @Test public void testeLocacao0() {
-	 * 
-	 * // (Cenario): Matheus quer alugar um filme (pantera negra) // Dado que o
-	 * usuário Matheus quer alugar Pantera Negra LocacaoService locacaoService = new
-	 * LocacaoService(); Usuario user1 = new Usuario("Matheus"); Filme filme1 = new
-	 * Filme("Pantera Negra", 1, 3.5);
-	 * 
-	 * // (Acao) When: Ocorre uma locação Locacao locacao =
-	 * locacaoService.alugarFilme(user1, filme1);
-	 * 
-	 * // (Verificacao) Then: o filme deve ser alugado (Através do objeto locação)
-	 * Assert.assertEquals(3.5, locacao.getValor(), 0.01);
-	 * Assert.assertTrue(DataUtils.isMesmaData(locacao.getDataLocacao(), new
-	 * Date())); Assert.assertTrue(DataUtils.isMesmaData(locacao.getDataRetorno(),
-	 * DataUtils.obterDataComDiferencaDias(1)));
-	 * 
-	 * }
-	 */
+	
 }
