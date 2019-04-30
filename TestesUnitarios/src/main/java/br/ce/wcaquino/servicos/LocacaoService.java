@@ -15,9 +15,10 @@ import br.com.wcaquino.exception.FilmeSemEstoqueException;
 import br.com.wcaquino.exception.LocadoraException;
 
 public class LocacaoService {
-	
+
 	private LocacaoDAO dao;
 	private SPCService spcService;
+	private EmailService emailService;
 
 	public Locacao alugarFilme(Usuario usuario, List<Filme> listaFilmes)
 			throws FilmeSemEstoqueException, LocadoraException {
@@ -35,8 +36,8 @@ public class LocacaoService {
 				throw new FilmeSemEstoqueException();
 			}
 		}
-		
-		if(spcService.possuiNegativacao(usuario)) {
+
+		if (spcService.possuiNegativacao(usuario)) {
 			throw new LocadoraException("Usuário Negativado");
 		}
 
@@ -51,15 +52,19 @@ public class LocacaoService {
 
 			switch (i) {
 			case 2:
-				valorFilme = valorFilme * 0.75; break;
+				valorFilme = valorFilme * 0.75;
+				break;
 			case 3:
-				valorFilme = valorFilme * 0.50;break;
+				valorFilme = valorFilme * 0.50;
+				break;
 			case 4:
-				valorFilme = valorFilme * 0.25;break;
+				valorFilme = valorFilme * 0.25;
+				break;
 			case 5:
-				valorFilme = 0;break; 
+				valorFilme = 0;
+				break;
 			}
- 			
+
 			precoLocacao += valorFilme;
 
 		}
@@ -68,7 +73,7 @@ public class LocacaoService {
 		// Entrega no dia seguinte
 		Date dataEntrega = new Date();
 		dataEntrega = adicionarDias(dataEntrega, 1);
-		if(DataUtils.verificarDiaSemana(dataEntrega, Calendar.SUNDAY)) {
+		if (DataUtils.verificarDiaSemana(dataEntrega, Calendar.SUNDAY)) {
 			dataEntrega = adicionarDias(dataEntrega, 1);
 		}
 		locacao.setDataRetorno(dataEntrega);
@@ -78,15 +83,28 @@ public class LocacaoService {
 
 		return locacao;
 	}
-	
-	
-	public void setLocacaoDAO(LocacaoDAO locacaoDAO) {
-		this.dao=locacaoDAO;
+
+	public void notificarAtrasos() {
+		List<Locacao> locacoes = dao.obterLocacoesPendentes();
+		for (Locacao locacao : locacoes) {
+			if (locacao.getDataRetorno().before(new Date())) {
+				emailService.notificarAtraso(locacao.getUsuario());
+			}
+		}
+
 	}
-	
+
+	public void setLocacaoDAO(LocacaoDAO locacaoDAO) {
+		this.dao = locacaoDAO;
+	}
+
 	public void setSPCService(SPCService spcService) {
-		this.spcService=spcService;
-		
+		this.spcService = spcService;
+
+	}
+
+	public void setEmailService(EmailService email) {
+		this.emailService = email;
 	}
 
 }
