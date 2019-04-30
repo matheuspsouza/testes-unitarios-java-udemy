@@ -18,7 +18,7 @@ public class CalculadoraMockTest {
 		Mockito.when(calculadora.somar(Mockito.eq(1), Mockito.anyInt())).thenReturn(5); //Todos parametros devem possuir macther caso pelo menos um possua;
 		
 		//when
-		int resultado=calculadora.somar(1,5);
+		int resultado=calculadora.somar(1,50000);
 		System.out.println(resultado);
 		
 		//then
