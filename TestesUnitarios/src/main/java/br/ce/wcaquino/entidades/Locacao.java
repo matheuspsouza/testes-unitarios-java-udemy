@@ -41,5 +41,12 @@ public class Locacao {
 	public void setListaFilmes(List<Filme> listaFilmes) {
 		this.listaFilmes = listaFilmes;
 	}
+	@Override
+	public String toString() {
+		return "Locacao [usuario=" + usuario + ", listaFilmes=" + listaFilmes + ", dataLocacao=" + dataLocacao
+				+ ", dataRetorno=" + dataRetorno + ", valor=" + valor + "]";
+	}
+	
+	
 	
 }

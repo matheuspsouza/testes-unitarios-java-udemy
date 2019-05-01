@@ -1,6 +1,7 @@
 package br.ce.wcaquino.servicos;
 
 import static br.ce.wcaquino.buiders.FilmeBuilder.umFilme;
+import static br.ce.wcaquino.buiders.LocacaoBuilder.umLocacao;
 import static br.ce.wcaquino.buiders.UsuarioBuilder.umUsuario;
 import static br.ce.wcaquino.matchers.MatcherProprio.caiNumaSegunda;
 import static br.ce.wcaquino.matchers.MatcherProprio.ehHoje;
@@ -28,7 +29,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import br.ce.wcaquino.buiders.LocacaoBuilder;
 import br.ce.wcaquino.daos.LocacaoDAO;
@@ -43,9 +48,14 @@ public class LocacaoServiceTest {
 
 	// Junit reinicializa todas as variaveis da classe para garantir independencia
 	// entre os testes
+	@InjectMocks
 	private LocacaoService locacaoService;
+	
+	@Mock
 	private SPCService spcService;
+	@Mock
 	private LocacaoDAO dao;
+	@Mock
 	private EmailService emailService;
 
 	// Contador
@@ -60,13 +70,8 @@ public class LocacaoServiceTest {
 
 	@Before
 	public void setup() {
-		locacaoService = new LocacaoService();
-		dao = Mockito.mock(LocacaoDAO.class);
-		locacaoService.setLocacaoDAO(dao);
-		spcService = Mockito.mock(SPCService.class);
-		locacaoService.setSPCService(spcService);
-		emailService = Mockito.mock(EmailService.class);
-		locacaoService.setEmailService(emailService);
+		MockitoAnnotations.initMocks(this);
+		
 
 	}
 
@@ -166,7 +171,7 @@ public class LocacaoServiceTest {
 	}
 
 	@Test
-	public void naoDeveAlugarFilmePararNegativaoSPC() throws FilmeSemEstoqueException {
+	public void naoDeveAlugarFilmePararNegativaoSPC() throws Exception {
 		// given
 		Usuario usuario = umUsuario().build();
 		List<Filme> listaFilmes = Arrays.asList(umFilme().build());
@@ -213,4 +218,48 @@ public class LocacaoServiceTest {
 		
 		
 	}
+
+	@Test
+	public void deveTratarErroNoSPC() throws Exception {
+		//given
+		Usuario usuario= umUsuario().build();
+		List<Filme> listaFilmes=Arrays.asList(umFilme().build());
+		
+		Mockito.when(spcService.possuiNegativacao(usuario)).thenThrow(new Exception("Falha catastrófica"));
+		
+		
+		//then
+		expectedException.expect(LocadoraException.class);
+		expectedException.expectMessage("SPC com problemas, tente novamente mais tarde");
+		
+		//when
+		locacaoService.alugarFilme(usuario, listaFilmes);
+		
+		
+		
+	}
+	@Test
+	public void deveProrrogarUmaLocacao() {
+		//given
+		Locacao locacao= umLocacao().build();
+		int dias=3;
+		
+		
+		//when
+		locacaoService.prorrogarLocacao(locacao, dias);
+		
+		//then
+		ArgumentCaptor<Locacao> argCap= ArgumentCaptor.forClass(Locacao.class);
+		verify(dao).salvar(argCap.capture());
+		Locacao novaLocacao=argCap.getValue();
+		
+		error.checkThat(novaLocacao.getValor(), is(locacao.getValor()*dias));
+		error.checkThat(novaLocacao.getListaFilmes(), is(locacao.getListaFilmes()));
+		error.checkThat(novaLocacao.getUsuario(), is(locacao.getUsuario()));
+		error.checkThat(novaLocacao.getDataLocacao(), ehHoje());
+		error.checkThat(novaLocacao.getDataRetorno(), ehHojeComDiferencaDias(dias));
+				
+	}
+
+	
 }
