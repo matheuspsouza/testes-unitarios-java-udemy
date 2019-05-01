@@ -29,11 +29,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import br.ce.wcaquino.buiders.LocacaoBuilder;
 import br.ce.wcaquino.daos.LocacaoDAO;
@@ -44,6 +48,8 @@ import br.ce.wcaquino.utils.DataUtils;
 import br.com.wcaquino.exception.FilmeSemEstoqueException;
 import br.com.wcaquino.exception.LocadoraException;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({LocacaoService.class,DataUtils.class})
 public class LocacaoServiceTest {
 
 	// Junit reinicializa todas as variaveis da classe para garantir independencia
@@ -76,12 +82,14 @@ public class LocacaoServiceTest {
 	}
 
 	@Test
-	public void deveDevolverFilmeNaSegundaAoAlugarNoSabado() throws FilmeSemEstoqueException, LocadoraException {
-		Assume.assumeTrue(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
+	public void deveDevolverFilmeNaSegundaAoAlugarNoSabado() throws Exception {
+		//Assume.assumeTrue(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY)); //Assumption para executar esse teste apenas no sábado
 
 		// given
 		Usuario usuario = umUsuario().build();
 		List<Filme> filmes = Arrays.asList(umFilme().build());
+		
+		PowerMockito.whenNew(Date.class).withNoArguments().thenReturn(DataUtils.obterData(04, 05, 2019));
 
 		// when
 		Locacao retorno = locacaoService.alugarFilme(usuario, filmes);
@@ -91,6 +99,8 @@ public class LocacaoServiceTest {
 		Assert.assertTrue(segunda);
 
 		assertThat(retorno.getDataRetorno(), caiNumaSegunda());
+		
+		
 	}
 
 	// Testando exceção
@@ -153,12 +163,13 @@ public class LocacaoServiceTest {
 
 	@Test
 	public void deveAlugarFilme() throws Exception { // Teste optado por funcionalidade
-		Assume.assumeFalse(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
-
+		
 		// (Cenario): Matheus quer alugar um filme (pantera negra)
 		// Dado que o usuário Matheus quer alugar Pantera Negra
 		Usuario user1 = umUsuario().build();
 		List<Filme> listaFilmes = Arrays.asList(umFilme().comValor(3.5).build());
+		
+		PowerMockito.whenNew(Date.class).withNoArguments().thenReturn(DataUtils.obterData(01,04,2019));		
 		// (Acao) When: Ocorre uma locação
 		Locacao locacao = locacaoService.alugarFilme(user1, listaFilmes);
 
@@ -167,6 +178,8 @@ public class LocacaoServiceTest {
 		error.checkThat(locacao.getValor(), is(equalTo(3.5)));
 		error.checkThat(locacao.getDataLocacao(), ehHoje());
 		error.checkThat(locacao.getDataRetorno(), ehHojeComDiferencaDias(1));
+		
+		PowerMockito.verifyNew(Date.class, Mockito.atLeastOnce()).withNoArguments(); //verificando se o construtor foi chamado
 
 	}
 
