@@ -23,19 +23,20 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.powermock.reflect.Whitebox;
 
 import br.ce.wcaquino.buiders.FilmeBuilder;
 import br.ce.wcaquino.buiders.LocacaoBuilder;
@@ -43,10 +44,12 @@ import br.ce.wcaquino.daos.LocacaoDAO;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
+import br.ce.wcaquino.exception.FilmeSemEstoqueException;
+import br.ce.wcaquino.exception.LocadoraException;
+import br.ce.wcaquino.runners.ParallelRunner;
 import br.ce.wcaquino.utils.DataUtils;
-import br.com.wcaquino.exception.FilmeSemEstoqueException;
-import br.com.wcaquino.exception.LocadoraException;
 
+@RunWith(ParallelRunner.class)
 public class LocacaoServiceTest {
 
 	// Junit reinicializa todas as variaveis da classe para garantir independencia
@@ -74,7 +77,13 @@ public class LocacaoServiceTest {
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);		
+		System.out.println("Iniciando...");
 
+	}
+	
+	@After
+	public void tearDown() {
+		System.out.println("Finalizando...");
 	}
 
 	@Test

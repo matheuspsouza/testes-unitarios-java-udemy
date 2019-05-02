@@ -1,6 +1,6 @@
  package br.ce.wcaquino.servicos;
 
-import br.com.wcaquino.exception.NaoPodeDividirPorZeroException;
+import br.ce.wcaquino.exception.NaoPodeDividirPorZeroException;
 
 public class Calculadora {
 
@@ -11,7 +11,7 @@ public class Calculadora {
 
 	public int subtrair(int a, int b) {
 		return a-b;
-	}
+	} 
 
 	public int divide(int a, int b) {
 		if(b==0) {
@@ -22,6 +22,7 @@ public class Calculadora {
 	
 	public void imprime() {
 		System.out.println("Imprime()");
+		 
 	}
 
 }

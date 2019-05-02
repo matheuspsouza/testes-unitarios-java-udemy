@@ -1,4 +1,4 @@
-package br.com.wcaquino.exception;
+package br.ce.wcaquino.exception;
 
 public class NaoPodeDividirPorZeroException extends ArithmeticException {
 
