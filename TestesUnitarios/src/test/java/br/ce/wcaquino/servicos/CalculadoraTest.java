@@ -1,22 +1,30 @@
 package br.ce.wcaquino.servicos;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import br.ce.wcaquino.exception.NaoPodeDividirPorZeroException;
-import br.ce.wcaquino.runners.ParallelRunner;
 
-@RunWith(ParallelRunner.class) //Executa uma classe por vez
+//@RunWith(ParallelRunner.class) //Executa uma classe por vez
 public class CalculadoraTest {
 	
+	public static StringBuffer ordem= new StringBuffer();
 	
 	private Calculadora calc;
 	
 	@Before
 	public void setUp() {
 		calc=new Calculadora();
+		
+		ordem.append(1);
+	}
+	
+	
+	@AfterClass
+	public static void tearDownClass() {
+		System.out.println(ordem.toString());
 	}
 	
 	@Test

@@ -24,13 +24,13 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -46,10 +46,9 @@ import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exception.FilmeSemEstoqueException;
 import br.ce.wcaquino.exception.LocadoraException;
-import br.ce.wcaquino.runners.ParallelRunner;
 import br.ce.wcaquino.utils.DataUtils;
 
-@RunWith(ParallelRunner.class)
+//@RunWith(ParallelRunner.class)
 public class LocacaoServiceTest {
 
 	// Junit reinicializa todas as variaveis da classe para garantir independencia
@@ -78,12 +77,18 @@ public class LocacaoServiceTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);		
 		System.out.println("Iniciando...");
+		CalculadoraTest.ordem.append(2);
 
 	}
 	
 	@After
 	public void tearDown() {
 		System.out.println("Finalizando...");
+	}
+	
+	@AfterClass
+	public  static void tearDownClass() {
+		System.out.println(CalculadoraTest.ordem.toString());
 	}
 
 	@Test

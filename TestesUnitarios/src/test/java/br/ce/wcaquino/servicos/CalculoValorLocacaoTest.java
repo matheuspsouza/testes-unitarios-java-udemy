@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +59,13 @@ public class CalculoValorLocacaoTest {
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
+		CalculadoraTest.ordem.append(3);
 
+	}
+	
+	@AfterClass
+	public static void tearDownClass() {
+		System.out.println(CalculadoraTest.ordem.toString());
 	}
 
 	@Parameters(name = "Teste {index} - {2}")
@@ -75,9 +82,12 @@ public class CalculoValorLocacaoTest {
 	}
 
 	@Test // O numero de testes exectudos é de acordo com o número de cenários passados
-	public void deveCalcularValorLocacaoConsiderandoDescontos() throws FilmeSemEstoqueException, LocadoraException {
+	public void deveCalcularValorLocacaoConsiderandoDescontos() throws FilmeSemEstoqueException, LocadoraException, InterruptedException {
 		// given
 		Usuario usuario = umUsuario().build();
+		
+		//testando paralelismo
+		Thread.sleep(5000);
 
 		// when
 		Locacao resultado = locacaoService.alugarFilme(usuario, filmes);
